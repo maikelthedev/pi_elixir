@@ -11,6 +11,7 @@ defmodule PiCodingAgent.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
+      escript: [main_module: PiCodingAgent.CLI, name: "pi"],
       deps: deps()
     ]
   end
