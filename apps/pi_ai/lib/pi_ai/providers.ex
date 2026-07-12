@@ -31,7 +31,9 @@ defmodule PiAi.Providers do
     PiAi.Provider.MoonshotAI,
     PiAi.Provider.ZAI,
     PiAi.Provider.Xiaomi,
-    PiAi.Provider.KimiCoding
+    PiAi.Provider.KimiCoding,
+    PiAi.Provider.OpenCode,
+    PiAi.Provider.AntLing
   ]
 
   @doc """
