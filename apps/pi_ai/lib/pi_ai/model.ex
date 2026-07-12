@@ -14,6 +14,7 @@ defmodule PiAi.Model do
     - `output_cost` - cost per 1M output tokens
     - `cache_read_cost` - cost per 1M cache read tokens
     - `cache_write_cost` - cost per 1M cache write tokens
+    - `reasoning` - whether the model supports reasoning/thinking
   """
 
   defstruct [
@@ -27,7 +28,8 @@ defmodule PiAi.Model do
     input_cost: 0.0,
     output_cost: 0.0,
     cache_read_cost: 0.0,
-    cache_write_cost: 0.0
+    cache_write_cost: 0.0,
+    reasoning: false
   ]
 
   @type t :: %__MODULE__{
@@ -41,6 +43,7 @@ defmodule PiAi.Model do
           input_cost: float(),
           output_cost: float(),
           cache_read_cost: float(),
-          cache_write_cost: float()
+          cache_write_cost: float(),
+          reasoning: boolean()
         }
 end

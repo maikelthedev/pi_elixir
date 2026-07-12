@@ -21,6 +21,7 @@ defmodule PiAi.ModelTest do
       assert model.max_tokens == 0
       assert model.input_cost == 0.0
       assert model.output_cost == 0.0
+      assert model.reasoning == false
     end
   end
 end
