@@ -375,7 +375,7 @@ defmodule PiCodingAgent.Mode.Interactive do
 
   # === RENDERING ===
 
-  defp draw_header(state, text) do
+  defp draw_header(_state, text) do
     {_rows, cols} = PiTui.Terminal.size()
     padded = String.pad_trailing(text, cols - 1)
     IO.write(:stderr, "\e[1;1H#{PiTui.Terminal.styled(padded, :reverse)}\e[0K")
