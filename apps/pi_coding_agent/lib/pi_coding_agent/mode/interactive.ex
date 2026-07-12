@@ -292,8 +292,11 @@ defmodule PiCodingAgent.Mode.Interactive do
     /help       Show this help
     /clear      Clear the conversation
     /save       Save the current session
+    /sessions   List saved sessions
+    /export     Export conversation as HTML
     /models     List available models
     /model ID   Switch to a model (Tab also cycles)
+    /diagnostics Show system diagnostics
     /exit       Exit pi
     """
 
@@ -340,6 +343,46 @@ defmodule PiCodingAgent.Mode.Interactive do
         send(self(), :read_input)
         {:noreply, %{state | input_buffer: "", cursor_pos: 0}}
     end
+  end
+
+  defp handle_command("/sessions", state) do
+    sessions = PiCodingAgent.Session.list()
+
+    case sessions do
+      [] ->
+        draw_status_bar(state, "No saved sessions.")
+
+      sessions ->
+        lines =
+          sessions
+          |> Enum.take(10)
+          |> Enum.map(fn s ->
+            count = length(s["messages"] || [])
+            ts = String.slice(s["timestamp"] || "unknown", 0, 19)
+            id = String.slice(s["session_id"] || "?", 0, 16)
+            "  #{id} - #{count} msgs - #{ts}"
+          end)
+
+        draw_status_bar(state, "Sessions (last 10):\n" <> Enum.join(lines, "\n"))
+    end
+
+    send(self(), :read_input)
+    {:noreply, %{state | input_buffer: "", cursor_pos: 0}}
+  end
+
+  defp handle_command("/export", state) do
+    path = "conversation_#{:erlang.system_time()}.html"
+    PiCodingAgent.ExportHTML.export(state.messages, path)
+    draw_status_bar(state, "Exported to #{path}")
+    send(self(), :read_input)
+    {:noreply, %{state | input_buffer: "", cursor_pos: 0}}
+  end
+
+  defp handle_command("/diagnostics", state) do
+    PiCodingAgent.Diagnostics.print()
+    draw_status_bar(state, "Diagnostics printed above.")
+    send(self(), :read_input)
+    {:noreply, %{state | input_buffer: "", cursor_pos: 0}}
   end
 
   defp handle_command("/exit", state) do
