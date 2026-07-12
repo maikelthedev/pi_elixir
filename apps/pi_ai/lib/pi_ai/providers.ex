@@ -33,7 +33,8 @@ defmodule PiAi.Providers do
     PiAi.Provider.Xiaomi,
     PiAi.Provider.KimiCoding,
     PiAi.Provider.OpenCode,
-    PiAi.Provider.AntLing
+    PiAi.Provider.AntLing,
+    PiAi.Provider.Bedrock
   ]
 
   @doc """
