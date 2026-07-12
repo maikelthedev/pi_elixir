@@ -26,7 +26,12 @@ defmodule PiAi.Providers do
     PiAi.Provider.VercelAIGateway,
     PiAi.Provider.CloudflareWorkersAI,
     PiAi.Provider.Minimax,
-    PiAi.Provider.OpenAICodex
+    PiAi.Provider.OpenAICodex,
+    PiAi.Provider.GoogleVertex,
+    PiAi.Provider.MoonshotAI,
+    PiAi.Provider.ZAI,
+    PiAi.Provider.Xiaomi,
+    PiAi.Provider.KimiCoding
   ]
 
   @doc """
