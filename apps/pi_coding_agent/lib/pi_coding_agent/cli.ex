@@ -49,8 +49,7 @@ defmodule PiCodingAgent.CLI do
         run_print_mode(opts)
 
       true ->
-        print_help()
-        :ok
+        run_interactive_mode(opts)
     end
   end
 
@@ -59,6 +58,7 @@ defmodule PiCodingAgent.CLI do
     pi — Coding Agent
 
     Usage:
+      pi                     Start interactive mode
       pi -p "your prompt"   Run a single prompt and print the response
       pi --model claude     Specify a model
       pi --help             Show this help
@@ -68,6 +68,22 @@ defmodule PiCodingAgent.CLI do
 
   defp print_version do
     IO.puts(:stderr, "pi coding agent 0.1.0")
+  end
+
+  defp run_interactive_mode(opts) do
+    model_id = opts[:model] || "gpt-4o"
+
+    case find_model(model_id) do
+      {:ok, model} ->
+        IO.puts(:stderr, "Starting interactive mode with #{model.name}...")
+        PiCodingAgent.Mode.Interactive.start_link(model: model)
+        # Block forever — the GenServer handles the UI
+        Process.sleep(:infinity)
+
+      {:error, reason} ->
+        IO.puts(:stderr, "Error: #{reason}")
+        :ok
+    end
   end
 
   defp run_print_mode(opts) do
