@@ -107,6 +107,7 @@ defmodule PiTui.Terminal do
   def set_style(:bg_blue), do: "\e[44m"
   def set_style(:bg_magenta), do: "\e[45m"
   def set_style(:bg_cyan), do: "\e[46m"
+  def set_style(:reverse), do: "\e[7m"
 
   @doc """
   Returns the reset style escape.
