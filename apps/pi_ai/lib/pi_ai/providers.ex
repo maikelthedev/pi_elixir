@@ -34,7 +34,8 @@ defmodule PiAi.Providers do
     PiAi.Provider.KimiCoding,
     PiAi.Provider.OpenCode,
     PiAi.Provider.AntLing,
-    PiAi.Provider.Bedrock
+    PiAi.Provider.Bedrock,
+    PiAi.Provider.CloudflareAIGateway
   ]
 
   @doc """
