@@ -46,5 +46,5 @@ defmodule PiCodingAgent.Tool.Grep do
     |> Enum.join("\n")
   end
 
-  defp escape(path), do: String.replace(path, ~R/['\\]/, "\\\\\\0")
+  defp escape(path), do: String.replace(path, ~r/['\\]/, "\\\\\\0")
 end
