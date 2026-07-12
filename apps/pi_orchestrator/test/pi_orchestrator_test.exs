@@ -1,8 +1,7 @@
 defmodule PiOrchestratorTest do
-  use ExUnit.Case
-  doctest PiOrchestrator
+  use ExUnit.Case, async: true
 
-  test "greets the world" do
-    assert PiOrchestrator.hello() == :world
+  test "orchestrator module compiles" do
+    assert is_pid(PiOrchestrator.start_link([]) |> elem(1))
   end
 end
