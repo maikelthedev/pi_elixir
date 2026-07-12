@@ -108,14 +108,6 @@ defmodule PiCodingAgent.CLI do
   end
 
   defp find_model(model_id) do
-    all_models =
-      PiAi.Provider.Anthropic.models() ++
-        PiAi.Provider.OpenAI.models() ++
-        PiAi.Provider.Gemini.models()
-
-    case Enum.find(all_models, &(&1.id == model_id)) do
-      nil -> {:error, "Model not found: #{model_id}"}
-      model -> {:ok, model}
-    end
+    PiAi.Providers.find_model(model_id)
   end
 end
