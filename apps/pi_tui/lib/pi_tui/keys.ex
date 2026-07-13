@@ -20,7 +20,7 @@ defmodule PiTui.Keys do
   Returns {key, rest} where rest is unconsumed bytes.
   """
   @spec parse(String.t()) :: {key(), String.t()}
-  def parse(<<?e, rest::binary>>), do: parse_escape(rest)
+  def parse(<<27, rest::binary>>), do: parse_escape(rest)
   def parse(<<?\n, rest::binary>>), do: {:enter, rest}
   def parse(<<?\r, rest::binary>>), do: {:enter, rest}
   def parse(<<?\t, rest::binary>>), do: {:tab, rest}
