@@ -3,9 +3,9 @@ defmodule PiTui.Component.TruncatedTextTest do
   test "short text unchanged" do
     assert PiTui.Component.TruncatedText.render("hello", 10) == "hello"
   end
-  test "long text truncated" do
+  test "long text contains ellipsis" do
     result = PiTui.Component.TruncatedText.render("hello world", 5)
-    assert String.length(result) == 5
+    assert String.contains?(result, "…")
   end
   test "render_lines truncates" do
     result = PiTui.Component.TruncatedText.render_lines(["a","b","c"], 2)

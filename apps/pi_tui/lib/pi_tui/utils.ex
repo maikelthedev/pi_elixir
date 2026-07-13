@@ -3,8 +3,18 @@ defmodule PiTui.Utils do
 
   @doc "Returns the terminal size as {rows, cols}. Cached briefly."
   def terminal_size do
-    {:ok, cols} = :io.columns()
-    {:ok, rows} = :io.rows()
+    cols =
+      case :io.columns() do
+        {:ok, c} -> c
+        _ -> 80
+      end
+
+    rows =
+      case :io.rows() do
+        {:ok, r} -> r
+        _ -> 24
+      end
+
     {rows, cols}
   end
 
