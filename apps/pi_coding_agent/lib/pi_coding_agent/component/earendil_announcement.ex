@@ -9,7 +9,7 @@ defmodule PiCodingAgent.Component.EarendilAnnouncement do
     [PiTui.Terminal.styled(" Session Summary ", :reverse),
      "",
      "  Model: #{PiTui.Terminal.styled(model, :cyan)}",
-     "  Messages: #{msgs}  Tokens: #{tokens}  Cost: $#{Float.round(cost, 6)}",
+     "  Messages: #{msgs}  Tokens: #{tokens}  Cost: $#{Float.round(cost / 1, 6)}",
      "  Time: #{time}",
      "  #{PiTui.Terminal.styled("Happy coding!", :dim)}",
      ""]
