@@ -1,20 +1,10 @@
 defmodule PiTui.Component.Markdown do
-  @moduledoc """
-  Renders markdown text to ANSI-formatted terminal output.
+  @moduledoc "Renders markdown text to ANSI-formatted terminal output with syntax highlighting."
 
-  Supports headings, code blocks, inline code, bold, italic,
-  lists, blockquotes, and horizontal rules.
-  """
-
-  @doc """
-  Renders a markdown string to a list of ANSI-formatted lines
-  wrapped to the given width.
-  """
+  @doc "Renders a markdown string to a list of ANSI-formatted lines."
   @spec render(String.t(), pos_integer()) :: [String.t()]
   def render(text, width \\ 80) do
-    text
-    |> String.split("\n")
-    |> process_lines(width, [], :none, 0)
+    text |> String.split("\n") |> process_lines(width, [], nil, 0)
   end
 
   defp process_lines([], _width, acc, _in_block, _indent), do: Enum.reverse(acc)
@@ -23,25 +13,26 @@ defmodule PiTui.Component.Markdown do
     trimmed = String.trim_trailing(line)
 
     cond do
-      in_block != :none and String.starts_with?(trimmed, "```") ->
-        process_lines(rest, width, acc, :none, 0)
+      in_block != nil and String.starts_with?(trimmed, "```") ->
+        process_lines(rest, width, acc, nil, 0)
 
-      in_block != :none ->
-        rendered = "  #{PiTui.Terminal.styled(trimmed, :dim)}"
-        process_lines(rest, width, [rendered | acc], in_block, indent)
+      in_block != nil ->
+        highlighted = PiTui.SyntaxHighlight.highlight(trimmed, in_block)
+        colored = Enum.map(highlighted, &"  #{&1}")
+        process_lines(rest, width, colored ++ acc, in_block, indent)
 
       String.starts_with?(trimmed, "```") ->
-        lang = String.trim_leading(trimmed, "```")
-        header = PiTui.Terminal.styled("  #{lang}  ", :reverse)
-        process_lines(rest, width, [header | acc], :code, indent)
+        lang = String.trim_leading(trimmed, "```") |> String.trim()
+        header = PiTui.Terminal.styled("  #{if lang != "", do: lang, else: "code"}  ", :reverse)
+        process_lines(rest, width, [header | acc], if(lang == "", do: "text", else: lang), indent)
 
       String.starts_with?(trimmed, "# ") ->
         rendered = PiTui.Terminal.styled(trimmed, :bold) |> PiTui.Terminal.styled(:underline)
-        process_lines(rest, width, ["" <> rendered | acc], in_block, indent)
+        process_lines(rest, width, [rendered | acc], in_block, indent)
 
       String.starts_with?(trimmed, "## ") ->
         rendered = PiTui.Terminal.styled(trimmed, :bold)
-        process_lines(rest, width, ["" <> rendered | acc], in_block, indent)
+        process_lines(rest, width, [rendered | acc], in_block, indent)
 
       String.starts_with?(trimmed, "> ") ->
         text = String.trim_leading(trimmed, "> ")
@@ -70,7 +61,7 @@ defmodule PiTui.Component.Markdown do
     text
     |> replace_inline(~r/\*\*(.+?)\*\*/, &PiTui.Terminal.styled(&1, :bold))
     |> replace_inline(~r/\*(.+?)\*/, &PiTui.Terminal.styled(&1, :italic))
-    |> replace_inline(~r/`(.+?)`/, fn match -> PiTui.Terminal.styled(PiTui.Terminal.styled(match, :yellow), :dim) end)
+    |> replace_inline(~r/`(.+?)`/, fn m -> PiTui.Terminal.styled(PiTui.Terminal.styled(m, :yellow), :dim) end)
     |> replace_inline(~r/~~(.+?)~~/, &PiTui.Terminal.styled(&1, :dim))
   end
 
