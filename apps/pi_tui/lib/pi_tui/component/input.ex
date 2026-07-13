@@ -46,6 +46,10 @@ defmodule PiTui.Component.Input do
     if c < String.length(buf), do: %{input | cursor: c + 1}, else: input
   end
 
+  def cursor_home(%__MODULE__{} = input), do: %{input | cursor: 0}
+
+  def cursor_end(%__MODULE__{buffer: buf} = input), do: %{input | cursor: String.length(buf)}
+
   @doc "Goes to previous history entry."
   def history_prev(%__MODULE__{history: [], history_idx: -1} = input), do: input
   def history_prev(%__MODULE__{history: h, history_idx: -1} = input) when h != [] do

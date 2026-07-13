@@ -72,54 +72,74 @@ defmodule PiCodingAgent.Mode.Interactive do
   end
 
   # === Commands ===
-  # === Byte handling ===
+  # === Key processing via Keybindings ===
 
-  defp handle_byte(_state, "\x03") do
-    PiTui.Terminal.exit_raw!()
-    IO.write(:stderr, PiTui.Terminal.show_cursor())
-    IO.write(:stderr, PiTui.Terminal.clear_screen())
-    exit(:normal)
+  defp handle_byte(state, bytes) when is_binary(bytes) do
+    {key, _rest} = PiTui.Keys.parse(bytes)
+    action = PiTui.Keybindings.resolve(PiTui.Keybindings.default_bindings(), key)
+    dispatch_action(state, key, action)
   end
 
-  defp handle_byte(state, "\n") do
-    {input, text} = PiTui.Component.Input.submit(state.input)
-    if text, do: submit_prompt(%{state | input: input}, text), else: state
-  end
+  defp dispatch_action(state, key, action) do
+    case action do
+      :quit ->
+        PiTui.Terminal.exit_raw!()
+        IO.write(:stderr, PiTui.Terminal.show_cursor())
+        IO.write(:stderr, PiTui.Terminal.clear_screen())
+        exit(:normal)
 
-  defp handle_byte(state, "\r"), do: handle_byte(state, "\n")
+      :submit ->
+        {input, text} = PiTui.Component.Input.submit(state.input)
+        if text, do: submit_prompt(%{state | input: input}, text), else: state
 
-  defp handle_byte(state, "\x7f") do
-    %{state | input: PiTui.Component.Input.delete(state.input)}
-  end
+      :delete_before ->
+        %{state | input: PiTui.Component.Input.delete(state.input)}
 
-  defp handle_byte(state, "\e") do
-    case IO.getn(:stdio, "", 1) do
-      "[" ->
-        case IO.getn(:stdio, "", 1) do
-          "A" -> %{state | input: PiTui.Component.Input.history_prev(state.input)}
-          "B" -> %{state | input: PiTui.Component.Input.history_next(state.input)}
-          "C" -> %{state | input: PiTui.Component.Input.cursor_right(state.input)}
-          "D" -> %{state | input: PiTui.Component.Input.cursor_left(state.input)}
+      :delete_after ->
+        %{state | input: PiTui.Component.Input.insert(state.input, "")}
+
+      :cursor_left ->
+        %{state | input: PiTui.Component.Input.cursor_left(state.input)}
+
+      :cursor_right ->
+        %{state | input: PiTui.Component.Input.cursor_right(state.input)}
+
+      :cursor_up ->
+        %{state | input: PiTui.Component.Input.history_prev(state.input)}
+
+      :cursor_down ->
+        %{state | input: PiTui.Component.Input.history_next(state.input)}
+
+      :history_prev ->
+        %{state | input: PiTui.Component.Input.history_prev(state.input)}
+
+      :history_next ->
+        %{state | input: PiTui.Component.Input.history_next(state.input)}
+
+      :cursor_home ->
+        %{state | input: PiTui.Component.Input.cursor_home(state.input)}
+
+      :cursor_end ->
+        %{state | input: PiTui.Component.Input.cursor_end(state.input)}
+
+      :complete ->
+        models = PiAi.Providers.all_models()
+        idx = Enum.find_index(models, &(&1.id == state.model.id))
+        next = Enum.at(models, rem((idx || 0) + 1, length(models)))
+        new_state = %{state | model: next}
+        render_footer(new_state, "Switched to #{next.id}")
+        new_state
+
+      :char ->
+        case key do
+          {:char, c} -> %{state | input: PiTui.Component.Input.insert(state.input, <<c::utf8>>)}
           _ -> state
         end
-      _ -> state
+
+      _ ->
+        state
     end
   end
-
-  defp handle_byte(state, "\t") do
-    models = PiAi.Providers.all_models()
-    idx = Enum.find_index(models, &(&1.id == state.model.id))
-    next = Enum.at(models, rem((idx || 0) + 1, length(models)))
-    new_state = %{state | model: next}
-    render_footer(new_state, "Switched to #{next.id}")
-    new_state
-  end
-
-  defp handle_byte(state, byte) when byte_size(byte) == 1 do
-    %{state | input: PiTui.Component.Input.insert(state.input, byte)}
-  end
-
-  defp handle_byte(state, _), do: state
 
   # === Submit prompt ===
 
