@@ -35,7 +35,11 @@ defmodule PiAi.Providers do
     PiAi.Provider.OpenCode,
     PiAi.Provider.AntLing,
     PiAi.Provider.Bedrock,
-    PiAi.Provider.CloudflareAIGateway
+    PiAi.Provider.CloudflareAIGateway,
+    PiAi.Provider.MinimaxCN,
+    PiAi.Provider.MoonshotAICN,
+    PiAi.Provider.ZAICodingCN,
+    PiAi.Provider.OpenCodeGo
   ]
 
   @doc """

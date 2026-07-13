@@ -47,6 +47,7 @@ defmodule PiCodingAgent.Mode.Print do
       "minimax" -> PiAi.Provider.Minimax.stream_chat(model, messages, opts)
       "moonshotai" -> PiAi.Provider.MoonshotAI.stream_chat(model, messages, opts)
       "zai" -> PiAi.Provider.ZAI.stream_chat(model, messages, opts)
+      "zai-coding-cn" -> PiAi.Provider.ZAICodingCN.stream_chat(model, messages, opts)
       "xiaomi" -> PiAi.Provider.Xiaomi.stream_chat(model, messages, opts)
       "kimi-coding" -> PiAi.Provider.KimiCoding.stream_chat(model, messages, opts)
       "opencode" -> PiAi.Provider.OpenCode.stream_chat(model, messages, opts)
