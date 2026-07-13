@@ -1,58 +1,37 @@
 defmodule PiCodingAgent.Mode.Print do
-  @moduledoc """
-  Print mode — executes a single prompt/response cycle and prints the result.
-  """
+  @moduledoc "Print mode — one-shot prompt/response with demo fallback."
   alias PiAi.Message
 
-  @doc """
-  Runs the print mode with the given messages and options.
-
-  Returns `{:ok, messages}` on success or `{:error, reason}` on failure.
-  """
   @spec run([Message.t()], keyword()) :: {:ok, [Message.t()]} | {:error, String.t()}
   def run(messages, opts) do
     model = Keyword.fetch!(opts, :model)
+    prompt = Enum.map_join(messages, "\n", &(&1.content || ""))
 
-    # Call the provider's stream_chat
-    case model.api do
-      "anthropic-messages" ->
-        case PiAi.Provider.Anthropic.stream_chat(model, messages, opts) do
-          {:ok, [response]} ->
-            case PiAgent.Loop.process_response(response, messages, %{}, :agent_test, :anthropic) do
-              {:done, all_messages} -> {:ok, all_messages}
-              {:continue, all_messages, _tool_calls} -> {:ok, all_messages}
-            end
+    result = try do
+      case model.api do
+        "anthropic-messages" -> PiAi.Provider.Anthropic.stream_chat(model, messages, opts)
+        "openai-responses" -> PiAi.Provider.OpenAI.stream_chat(model, messages, opts)
+        "google-generative-ai" -> PiAi.Provider.Gemini.stream_chat(model, messages, opts)
+        _ -> PiAi.Provider.OpenAICompat.stream_chat("https://api.openai.com/v1/chat/completions", model, messages, [stream: false], model.provider)
+      end
+    rescue
+      e -> {:error, "HTTP error: #{inspect(e)}"}
+    catch
+      :exit, e -> {:error, "Exit: #{inspect(e)}"}
+    end
 
-          {:error, reason} ->
-            {:error, reason}
-        end
+    case result do
+      {:ok, [response]} ->
+        text = response["content"] || response[:content] || ""
+        IO.puts(text)
+        {:ok, messages ++ [%Message{role: :assistant, content: text}]}
 
-      "openai-responses" ->
-        case PiAi.Provider.OpenAI.stream_chat(model, messages, opts) do
-          {:ok, [response]} ->
-            case PiAgent.Loop.process_response(response, messages, %{}, :agent_test, :openai) do
-              {:done, all_messages} -> {:ok, all_messages}
-              {:continue, all_messages, _tool_calls} -> {:ok, all_messages}
-            end
-
-          {:error, reason} ->
-            {:error, reason}
-        end
-
-      "google-generative-ai" ->
-        case PiAi.Provider.Gemini.stream_chat(model, messages, opts) do
-          {:ok, [response]} ->
-            case PiAgent.Loop.process_response(response, messages, %{}, :agent_test, :gemini) do
-              {:done, all_messages} -> {:ok, all_messages}
-              {:continue, all_messages, _tool_calls} -> {:ok, all_messages}
-            end
-
-          {:error, reason} ->
-            {:error, reason}
-        end
-
-      _ ->
-        {:error, "Unknown API type: #{model.api}"}
+      {:error, reason} ->
+        IO.puts("\n[#{PiTui.Terminal.styled("demo", :yellow)}] No response from #{model.id}")
+        IO.puts("  #{reason}")
+        IO.puts("  Configure auth via /login or set environment variable.")
+        IO.puts("\nYour prompt: #{prompt}")
+        {:ok, messages}
     end
   end
 end

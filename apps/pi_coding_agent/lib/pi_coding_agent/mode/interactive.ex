@@ -41,11 +41,18 @@ defmodule PiCodingAgent.Mode.Interactive do
 
   @impl true
   def handle_info(:read_input, state) do
-    byte = IO.getn(:stdio, "", 1)
-    new_state = handle_byte(state, byte)
-    redraw_input(new_state)
-    send(self(), :read_input)
-    {:noreply, new_state}
+    try do
+      byte = IO.getn(:stdio, "", 1)
+      new_state = handle_byte(state, byte || "")
+      redraw_input(new_state)
+      send(self(), :read_input)
+      {:noreply, new_state}
+    rescue
+      e ->
+        IO.write(:stderr, "\nInput error: #{inspect(e)}\n")
+        send(self(), :read_input)
+        {:noreply, state}
+    end
   end
 
   def handle_info({:response, text}, state) do

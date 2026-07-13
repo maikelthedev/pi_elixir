@@ -19,7 +19,7 @@ defmodule PiAi.Provider.OpenAICompat do
       model: model.id,
       max_tokens: Keyword.get(opts, :max_tokens, 4096),
       messages: Enum.map(messages, &PiAi.Provider.OpenAI.message_to_openai/1),
-      stream: true
+      stream: Keyword.get(opts, :stream, true)
     }
 
     body =
