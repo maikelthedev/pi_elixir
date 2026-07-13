@@ -98,6 +98,12 @@ defmodule PiCodingAgent.CLI do
     system_prompt = PiCodingAgent.SystemPrompt.build(model: model.id, skills: Enum.map(skills, & &1.name))
     {:ok, _} = PiCodingAgent.EventBus.start_link(name: PiCodingAgent.EventBus)
     PiCodingAgent.EventBus.emit(:session_start, %{model: model.id})
+
+    # Register telemetry report on exit
+    System.at_exit(fn _ ->
+      PiCodingAgent.Telegraf.report()
+    end)
+
     IO.puts(:stderr, "Starting interactive mode with #{model.name}...")
     PiCodingAgent.Mode.Interactive.start_link(model: model, system_prompt: system_prompt)
     Process.sleep(:infinity)
