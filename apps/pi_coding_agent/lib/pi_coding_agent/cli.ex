@@ -71,19 +71,36 @@ defmodule PiCodingAgent.CLI do
   end
 
   defp run_interactive_mode(opts) do
-    model_id = opts[:model] || "gpt-4o"
+    model_id = opts[:model]
 
-    case find_model(model_id) do
-      {:ok, model} ->
-        IO.puts(:stderr, "Starting interactive mode with #{model.name}...")
-        PiCodingAgent.Mode.Interactive.start_link(model: model)
-        # Block forever — the GenServer handles the UI
-        Process.sleep(:infinity)
+    model =
+      case model_id do
+        nil ->
+          # Show startup model selector (unless setup already done)
+          case PiCodingAgent.StartupUI.run() do
+            {:ok, m} -> m
+            _ ->
+              case PiAi.Providers.find_model(PiCodingAgent.Settings.default_model()) do
+                {:ok, m} -> m
+                _ -> hd(PiAi.Providers.all_models())
+              end
+          end
+        id ->
+          case find_model(id) do
+            {:ok, m} -> m
+            {:error, reason} ->
+              IO.puts(:stderr, "Error: #{reason}")
+              hd(PiAi.Providers.all_models())
+          end
+      end
 
-      {:error, reason} ->
-        IO.puts(:stderr, "Error: #{reason}")
-        :ok
-    end
+    skills = PiCodingAgent.Skills.load_all()
+    system_prompt = PiCodingAgent.SystemPrompt.build(model: model.id, skills: Enum.map(skills, & &1.name))
+    {:ok, _} = PiCodingAgent.EventBus.start_link(name: PiCodingAgent.EventBus)
+    PiCodingAgent.EventBus.emit(:session_start, %{model: model.id})
+    IO.puts(:stderr, "Starting interactive mode with #{model.name}...")
+    PiCodingAgent.Mode.Interactive.start_link(model: model, system_prompt: system_prompt)
+    Process.sleep(:infinity)
   end
 
   defp run_print_mode(opts) do

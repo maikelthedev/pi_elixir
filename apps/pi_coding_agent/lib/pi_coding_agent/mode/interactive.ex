@@ -199,6 +199,19 @@ defmodule PiCodingAgent.Mode.Interactive do
     state
   end
 
+  defp handle_command(state, "/compact") do
+    if PiCodingAgent.Compaction.needed?(state.messages) do
+      {:ok, {summary, recent}} = PiCodingAgent.Compaction.compact(state.messages)
+      new_messages = [summary | recent]
+      redraw_conversation(%{state | messages: new_messages})
+      render_footer(%{state | messages: new_messages}, "Compacted #{length(state.messages)} msgs to #{length(new_messages)}")
+      %{state | messages: new_messages}
+    else
+      render_footer(state, "Only #{length(state.messages)} messages, no compaction needed.")
+      state
+    end
+  end
+
   defp handle_command(_state, "/exit") do
     PiTui.Terminal.exit_raw!()
     IO.write(:stderr, PiTui.Terminal.show_cursor())
