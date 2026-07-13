@@ -1,0 +1,6 @@
+defmodule PiCodingAgent.Mode.InteractiveTest do
+  use ExUnit.Case, async: true
+  test "module loads" do
+    assert Code.ensure_loaded?(PiCodingAgent.Mode.Interactive)
+  end
+end
