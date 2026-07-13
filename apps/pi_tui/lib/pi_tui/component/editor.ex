@@ -138,7 +138,7 @@ defmodule PiTui.Component.Editor do
   def text(%__MODULE__{buffer: buf}), do: Enum.join(buf, "\n")
 
   @doc "Renders the editor viewport. Returns {lines, cursor_reposition}."
-  def render(%__MODULE__{buffer: buf, cursor_line: l, cursor_col: c, scroll_offset: so} = ed, height, width) do
+  def render(%__MODULE__{buffer: buf, cursor_line: l, cursor_col: c, scroll_offset: so} = _ed, height, width) do
     visible = Enum.slice(buf, so, height)
     line_nums = Enum.map(Enum.with_index(visible, so), fn {line, i} ->
       num = PiTui.Terminal.styled(String.pad_leading("#{i + 1}", 4), :dim)

@@ -129,7 +129,7 @@ defmodule PiTui.Terminal do
   @spec enter_raw!() :: :ok
   def enter_raw! do
     # Use stty via System.cmd
-    System.cmd("stty", ~c[-icanon min 1 time 0 -echo], into: :stderr)
+    System.cmd("stty", ["-icanon", "min", "1", "time", "0", "-echo"])
     :ok
   end
 
@@ -138,7 +138,7 @@ defmodule PiTui.Terminal do
   """
   @spec exit_raw!() :: :ok
   def exit_raw! do
-    System.cmd("stty", ~c[icanon echo], into: :stderr)
+    System.cmd("stty", ["icanon", "echo"])
     :ok
   end
 end

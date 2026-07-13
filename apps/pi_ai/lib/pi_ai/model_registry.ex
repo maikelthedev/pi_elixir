@@ -9,6 +9,12 @@ defmodule PiAi.ModelRegistry do
   @default_path Path.expand("~/.pi/agent/models.json")
 
   @doc """
+  Lists all registered models.
+  """
+  @spec list() :: [PiAi.Model.t()]
+  def list, do: load()
+
+  @doc """
   Loads the model registry from disk, falling back to provider discovery.
   """
   @spec load(String.t() | nil) :: [PiAi.Model.t()]
