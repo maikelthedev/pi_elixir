@@ -26,7 +26,15 @@ defmodule PiAgent.Loop do
 
     tool_name = String.to_atom(name)
 
-    case PiAgent.Tool.Registry.lookup(tool_name, registry) do
+    result = try do
+      PiAgent.Tool.Registry.lookup(tool_name, registry)
+    rescue
+      _ -> :error
+    catch
+      :exit, _ -> :error
+    end
+
+    case result do
       {:ok, module} ->
         case module.call(args, context) do
           {:ok, result} ->
