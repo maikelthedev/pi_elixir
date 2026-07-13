@@ -89,14 +89,14 @@ defmodule PiCodingAgent.SessionManager do
   @doc "Returns all messages from the current branch."
   def messages(%__MODULE__{branches: branches, current_branch: b}) do
     (branches[b] || [])
-    |> Enum.filter(&(&1.type == :message))
+    |> Enum.filter(fn e -> entry_type_is?(e, :message) end)
     |> Enum.map(fn e ->
       %Message{
-        role: e.role,
-        content: e.content,
-        tool_call_id: e.tool_call_id,
-        name: e.name,
-        is_error: e.is_error || false
+        role: entry_val(e, :role),
+        content: entry_val(e, :content),
+        tool_call_id: entry_val(e, :tool_call_id),
+        name: entry_val(e, :name),
+        is_error: entry_val(e, :is_error) || false
       }
     end)
   end
@@ -167,5 +167,13 @@ defmodule PiCodingAgent.SessionManager do
     Map.new(data, fn {name, entries} ->
       {String.to_atom(name), entries}
     end)
+  end
+
+  defp entry_type(e), do: e[:type] || e["type"]
+  defp entry_val(e, key), do: e[key] || e[Atom.to_string(key)]
+
+  defp entry_type_is?(e, type) do
+    val = entry_type(e)
+    val == type or val == Atom.to_string(type)
   end
 end
