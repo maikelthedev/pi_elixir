@@ -1,7 +1,9 @@
 defmodule PiCodingAgent.Component.BashExecutionTest do
   use ExUnit.Case, async: true
   test "render start shows command" do
-    assert PiCodingAgent.Component.BashExecution.render_start("echo hi") =~ "echo hi"
+    result = PiCodingAgent.Component.BashExecution.render_start("echo hi")
+    joined = Enum.join(result)
+    assert joined =~ "echo hi"
   end
   test "render exit shows code" do
     assert PiCodingAgent.Component.BashExecution.render_exit(0) =~ "exit 0"
