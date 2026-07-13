@@ -6,8 +6,6 @@ defmodule PiCodingAgent.Migrations do
   to the current version.
   """
 
-  @current_version 1
-
   @doc "Runs all pending migrations."
   def run(force \\ false) do
     version = get_version()

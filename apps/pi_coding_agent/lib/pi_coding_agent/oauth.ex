@@ -29,7 +29,7 @@ defmodule PiCodingAgent.OAuth do
         # Show user code
         IO.puts(:stderr, "\n#{PiTui.Terminal.styled(" OAuth Login ", :reverse)}")
         IO.puts(:stderr, "  Visit: #{PiTui.Terminal.styled(verification_uri, :underline)}")
-        IO.puts(:stderr, "  Enter code: #{PiTui.Terminal.styled(user_code, :bold, :green)}")
+        IO.puts(:stderr, "  Enter code: #{PiTui.Terminal.styled(user_code, :green)}")
         IO.puts(:stderr, "")
 
         # Step 2: Poll for token

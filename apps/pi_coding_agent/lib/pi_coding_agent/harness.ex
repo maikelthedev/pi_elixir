@@ -26,7 +26,7 @@ defmodule PiCodingAgent.Harness do
   end
 
   def stop(%__MODULE__{running: true} = h) do
-    report = PiCodingAgent.Telemetry.report(h.telemetry)
+    _report = PiCodingAgent.Telemetry.report(h.telemetry)
     %{h | running: false}
   end
 

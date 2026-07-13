@@ -26,7 +26,7 @@ defmodule PiCodingAgent.Compaction do
   """
   @spec compact([Message.t()], keyword()) :: {:ok, {Message.t(), [Message.t()]}}
   def compact(messages, opts \\ []) do
-    budget = Keyword.get(opts, :token_budget, @default_token_budget)
+    _budget = Keyword.get(opts, :token_budget, @default_token_budget)
     keep_recent = Keyword.get(opts, :keep_recent, 10)
 
     # Split: keep recent N messages, compact the rest
