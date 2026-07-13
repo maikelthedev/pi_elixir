@@ -22,7 +22,8 @@ defmodule PiCodingAgent.CLI do
           print: :string,
           model: :string,
           help: :boolean,
-          version: :boolean
+          version: :boolean,
+          rpc: :boolean
         ],
         aliases: [p: :print, v: :version]
       )
@@ -45,6 +46,9 @@ defmodule PiCodingAgent.CLI do
         print_version()
         :ok
 
+      opts[:rpc] ->
+        PiCodingAgent.Mode.RPC.run()
+
       opts[:print] ->
         run_print_mode(opts)
 
@@ -61,6 +65,7 @@ defmodule PiCodingAgent.CLI do
       pi                     Start interactive mode
       pi -p "your prompt"   Run a single prompt and print the response
       pi --model claude     Specify a model
+      pi --rpc              RPC mode (read JSON-RPC from stdin)
       pi --help             Show this help
       pi --version          Show version
     """)

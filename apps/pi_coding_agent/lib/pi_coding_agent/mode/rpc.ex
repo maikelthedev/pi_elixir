@@ -77,19 +77,22 @@ defmodule PiCodingAgent.Mode.RPC do
   """
   def run do
     IO.puts(:stderr, "pi RPC mode started")
-    IO.read(:stdio, :line)
-    |> String.trim()
-    |> case do
+    rpc_loop()
+  end
+
+  defp rpc_loop do
+    case IO.read(:stdio, :line) do
+      :eof -> :ok
       "" -> :ok
       line ->
-        case JSON.decode(line) do
+        case JSON.decode(String.trim(line)) do
           {:ok, request} ->
             response = handle_request(request)
             IO.puts(JSON.encode!(response))
           {:error, _} ->
             IO.puts(JSON.encode!(%{"jsonrpc" => "2.0", "error" => %{"code" => -32700, "message" => "Parse error"}}))
         end
-        run()
+        rpc_loop()
     end
   end
 end
