@@ -24,9 +24,10 @@ defmodule PiAgent.Harness do
   def init(opts) do
     model = Keyword.fetch!(opts, :model)
     env = Keyword.get(opts, :env, :node)
-    skills = Keyword.get(opts, :skills, PiCodingAgent.Skills.load_all())
+    skills = Keyword.get(opts, :skills, [])
+    system_prompt = Keyword.get(opts, :system_prompt, "You are pi, a coding agent.")
     pt = %{
-      "system" => Keyword.get(opts, :system_prompt, PiCodingAgent.SystemPrompt.build(model: model.id)),
+      "system" => system_prompt,
       "compact" => "Summarize the following conversation concisely:\n\n{{conversation}}"
     }
     {:ok, %__MODULE__{model: model, env: env, skills: skills, prompt_templates: pt}}
